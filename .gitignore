@@ -1,0 +1,46 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static_root/
+*.json
+
+
+# Environment variables
+.env
+.env.*
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# VSCode settings
+.vscode/
+
+# macOS & Windows system files
+.DS_Store
+Thumbs.db
+
+# Node modules (if using npm/Bootstrap extras)
+node_modules/
+
+
+# Coverage reports
+htmlcov/
+coverage.xml
+*.cover
+
+# Pytest
+.pytest_cache/
+
