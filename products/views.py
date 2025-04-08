@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect
 from .models import Product, ProductCategory
 from django import forms
 from django.shortcuts import get_object_or_404
-
+from django.db.models import F, Value
+from django.db.models.functions import Lower, Replace
 
 
 # Forms
@@ -47,6 +48,13 @@ def category_delete(request, pk):
         return redirect('category_list')
     return render(request, 'products/confirm_delete.html', {'object': category, 'type': 'Category'})
 
+# CATEGORY: Search
+def category_list(request):
+    query = request.GET.get('q')
+    categories = ProductCategory.objects.all()
+    if query:
+        categories = categories.filter(name__icontains=query)
+    return render(request, 'products/category_list.html', {'categories': categories, 'query': query})
 
 
 # Product Views
@@ -79,4 +87,19 @@ def product_delete(request, pk):
         return redirect('product_list')
     return render(request, 'products/confirm_delete.html', {'object': product, 'type': 'Product'})
 
+# PRODUCT: Search
+def product_list(request):
+    query = request.GET.get('q', '').strip()
+    products = Product.objects.all()
 
+    if query:
+        # Normalize: remove hyphens from both query and product name
+        normalized_query = query.lower().replace('-', '').replace(' ', '')
+
+        products = products.annotate(
+            clean_name=Replace(Lower(F('name')), Value('-'), Value(''))
+        ).annotate(
+            clean_name=Replace(F('clean_name'), Value(' '), Value(''))
+        ).filter(clean_name__icontains=normalized_query)
+
+    return render(request, 'products/product_list.html', {'products': products, 'query': query})
