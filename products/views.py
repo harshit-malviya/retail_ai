@@ -28,7 +28,7 @@ def category_create(request):
     form = CategoryForm(request.POST or None)
     if form.is_valid():
         form.save()
-        return redirect('category_list')
+        return redirect('products:category_list')
     return render(request, 'products/category_form.html', {'form': form})
 
 # CATEGORY: Edit
@@ -37,7 +37,7 @@ def category_edit(request, pk):
     form = CategoryForm(request.POST or None, instance=category)
     if form.is_valid():
         form.save()
-        return redirect('category_list')
+        return redirect('products:category_list')
     return render(request, 'products/category_form.html', {'form': form})
 
 # CATEGORY: Delete
@@ -45,7 +45,7 @@ def category_delete(request, pk):
     category = get_object_or_404(ProductCategory, pk=pk)
     if request.method == 'POST':
         category.delete()
-        return redirect('category_list')
+        return redirect('products:category_list')
     return render(request, 'products/confirm_delete.html', {'object': category, 'type': 'Category'})
 
 # CATEGORY: Search
@@ -62,7 +62,7 @@ def product_create(request):
     form = ProductForm(request.POST or None)
     if form.is_valid():
         form.save()
-        return redirect('product_list')
+        return redirect('products:product_list')
     return render(request, 'products/product_form.html', {'form': form})
 
 def product_list(request):
@@ -76,7 +76,7 @@ def product_edit(request, pk):
     form = ProductForm(request.POST or None, instance=product)
     if form.is_valid():
         form.save()
-        return redirect('product_list')
+        return redirect('products:product_list')
     return render(request, 'products/product_form.html', {'form': form})
 
 # PRODUCT: Delete
@@ -84,7 +84,7 @@ def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     if request.method == 'POST':
         product.delete()
-        return redirect('product_list')
+        return redirect('products:product_list')
     return render(request, 'products/confirm_delete.html', {'object': product, 'type': 'Product'})
 
 # PRODUCT: Search
