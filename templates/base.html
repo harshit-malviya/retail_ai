@@ -32,13 +32,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'billing:create_sale' %}">Sale</a>
                     </li>
-                    <li class="nav-item">
-                        {% if customer %}
-                            <a class="nav-link" href="{% url 'billing:purchase_history' customer.id %}">View Purchase History</a>
-                        {% endif %}
-                    </li>
-
-
                     <!-- Add more navigation links here -->
                 </ul>
             </div>
