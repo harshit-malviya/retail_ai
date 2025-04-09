@@ -36,7 +36,6 @@ def create_sale(request):
                 customer.save()
                 customer1 = sale.customer
                 customer1.last_purchase = sale.date
-                customer1.visit_count += 1
                 customer1.total_spent += sale.total_amount
                 customer1.save()
 
