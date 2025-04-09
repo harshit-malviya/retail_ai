@@ -1,0 +1,36 @@
+<h2>Invoice #{{ sale.id }}</h2>
+
+<p><strong>Date:</strong> {{ sale.date }}</p>
+<p><strong>Customer:</strong> {{ sale.customer.name }}</p>
+<p><strong>Phone:</strong> {{ sale.customer.phone }}</p>
+
+<hr>
+
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Size</th>
+            <th>Color</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in sale.items.all %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.product.size }}</td>
+            <td>{{ item.product.color }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.price }}</td>
+            <td>₹{{ item.get_total_price }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+<p><strong>Total Amount:</strong> ₹{{ sale.total_amount }}</p>
