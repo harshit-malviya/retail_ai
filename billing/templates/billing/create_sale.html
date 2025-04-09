@@ -56,76 +56,116 @@
 </div>
 
 <script>
-$(document).ready(function () {
-    const prefix = 'items'; // This MUST match your formset prefix
-
-    function updateSubtotals() {
-        let total = 0;
-        $('.item-row').each(function () {
-            const qty = parseFloat($(this).find(`input[name$="-quantity"]`).val()) || 0;
-            const price = parseFloat($(this).find(`input[name$="-price"]`).val()) || 0;
-            const subtotal = qty * price;
-            $(this).find('.subtotal').text(subtotal.toFixed(2));
-            total += subtotal;
-        });
-        $('#total-amount').text(total.toFixed(2));
-    }
-
-    $('#items-table').on('change', 'select', function () {
-        const $row = $(this).closest('tr');
-        const productId = $(this).val();
-        const priceInput = $row.find('input[name$="-price"]');
-
-        if (productId) {
-            $.getJSON("/billing/api/product-info/", { product_id: productId }, function (data) {
-                if (data.price) {
-                    priceInput.val(data.price);
+    $(document).ready(function () {
+        const prefix = 'items';
+    
+        function updateSubtotals() {
+            let total = 0;
+            $('.item-row').each(function () {
+                const qty = parseFloat($(this).find(`input[name$="-quantity"]`).val()) || 0;
+                const price = parseFloat($(this).find(`input[name$="-price"]`).val()) || 0;
+                const subtotal = qty * price;
+                $(this).find('.subtotal').text(subtotal.toFixed(2));
+                total += subtotal;
+            });
+            $('#total-amount').text(total.toFixed(2));
+        }
+    
+        function validateQuantity($row) {
+            const qty = parseInt($row.find('input[name$="-quantity"]').val()) || 0;
+            const stock = parseInt($row.find('select').data('stock')) || 0;
+    
+            if (qty > stock) {
+                $row.find('input[name$="-quantity"]').addClass('is-invalid');
+                if ($row.find('.stock-error').length === 0) {
+                    $row.find('td:eq(1)').append(`<div class="text-danger stock-error small">Exceeds stock (only ${stock} available)</div>`);
+                }
+                return false;
+            } else {
+                $row.find('input[name$="-quantity"]').removeClass('is-invalid');
+                $row.find('.stock-error').remove();
+                return true;
+            }
+        }
+    
+        $('#items-table').on('change', 'select', function () {
+            const $row = $(this).closest('tr');
+            const productId = $(this).val();
+            const priceInput = $row.find('input[name$="-price"]');
+    
+            if (productId) {
+                $.getJSON("/billing/api/product-info/", { product_id: productId }, function (data) {
+                    if (data.price) {
+                        priceInput.val(data.price);
+                    }
+                    if (data.stock !== undefined) {
+                        $row.find('select').data('stock', data.stock);
+                    }
                     updateSubtotals();
+                    validateQuantity($row);
+                });
+            }
+        });
+    
+        $('#items-table').on('input', 'input', function () {
+            const $row = $(this).closest('tr');
+            updateSubtotals();
+            validateQuantity($row);
+        });
+    
+        $('#add-row').click(function () {
+            const totalForms = $(`#id_${prefix}-TOTAL_FORMS`);
+            const formIndex = parseInt(totalForms.val());
+            const $lastRow = $('#items-table .item-row:last');
+            const $newRow = $lastRow.clone(false);
+    
+            $newRow.find(':input').each(function () {
+                const oldName = $(this).attr('name');
+                const oldId = $(this).attr('id');
+    
+                if (oldName && oldId) {
+                    const newName = oldName.replace(new RegExp(`${prefix}-\\d+-`), `${prefix}-${formIndex}-`);
+                    const newId = oldId.replace(new RegExp(`${prefix}-\\d+-`), `${prefix}-${formIndex}-`);
+                    $(this).attr({ name: newName, id: newId }).val('');
                 }
             });
-        }
-    });
-
-    $('#items-table').on('input', 'input', function () {
-        updateSubtotals();
-    });
-
-    $('#add-row').click(function () {
-        const totalForms = $(`#id_${prefix}-TOTAL_FORMS`);
-        const formIndex = parseInt(totalForms.val());
-        const $lastRow = $('#items-table .item-row:last');
-        const $newRow = $lastRow.clone(false);
-
-        $newRow.find(':input').each(function () {
-    const oldName = $(this).attr('name');
-    const oldId = $(this).attr('id');
-    console.log('oldName:', oldName, 'oldId:', oldId);
-
-    if (oldName && oldId) {
-        const newName = oldName.replace(new RegExp(`${prefix}-\\d+-`), `${prefix}-${formIndex}-`);
-        const newId = oldId.replace(new RegExp(`${prefix}-\\d+-`), `${prefix}-${formIndex}-`);
-        $(this).attr({ name: newName, id: newId }).val('');
-    }
-});
-
-
-        $newRow.find('.subtotal').text('0.00');
-        $('#items-table tbody').append($newRow);
-        totalForms.val(formIndex + 1);
-        updateSubtotals();
-    });
-
-    $('#items-table').on('click', '.remove-row', function () {
-        if ($('.item-row').length > 1) {
-            $(this).closest('tr').remove();
-            const count = $('.item-row').length;
-            $(`#id_${prefix}-TOTAL_FORMS`).val(count);
+    
+            $newRow.find('select').removeData('stock');
+            $newRow.find('.subtotal').text('0.00');
+            $newRow.find('.stock-error').remove();
+            $newRow.find('input').removeClass('is-invalid');
+    
+            $('#items-table tbody').append($newRow);
+            totalForms.val(formIndex + 1);
             updateSubtotals();
-        }
+        });
+    
+        $('#items-table').on('click', '.remove-row', function () {
+            if ($('.item-row').length > 1) {
+                $(this).closest('tr').remove();
+                const count = $('.item-row').length;
+                $(`#id_${prefix}-TOTAL_FORMS`).val(count);
+                updateSubtotals();
+            }
+        });
+    
+        $('#sale-form').submit(function (e) {
+            let valid = true;
+            $('.item-row').each(function () {
+                if (!validateQuantity($(this))) {
+                    valid = false;
+                }
+            });
+    
+            if (!valid) {
+                alert("Please fix stock quantity errors before submitting.");
+                e.preventDefault();
+            }
+        });
+    
+        updateSubtotals();
     });
-
-    updateSubtotals();
-});
-</script>
+    </script>
+    
 
 {% endblock %}
