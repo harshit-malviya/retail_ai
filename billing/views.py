@@ -69,3 +69,82 @@ def customer_purchase_history(request, customer_id):
         'customer': customer,
         'purchases': purchases
     })
+
+import openpyxl
+from openpyxl.utils import get_column_letter
+from django.http import HttpResponse
+from customers.models import Customer
+from .models import Sale
+
+def export_customer_sales_excel(request, customer_id):
+    customer = Customer.objects.get(id=customer_id)
+    sales = Sale.objects.filter(customer=customer).order_by('-date')
+
+    # Create workbook and sheet
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Purchase History"
+
+    # Header
+    headers = ['Invoice ID', 'Date', 'Total Amount (₹)']
+    for col_num, header in enumerate(headers, 1):
+        col_letter = get_column_letter(col_num)
+        ws[f'{col_letter}1'] = header
+
+    # Data rows
+    for row_num, sale in enumerate(sales, 2):
+        ws[f'A{row_num}'] = sale.id
+        ws[f'B{row_num}'] = sale.date.strftime('%Y-%m-%d %H:%M')
+        ws[f'C{row_num}'] = float(sale.total_amount)
+
+    # Set content type and response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    filename = f"{customer.name.replace(' ', '_')}_Purchase_History.xlsx"
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    wb.save(response)
+    return response
+
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from io import BytesIO
+
+def export_customer_sales_pdf(request, customer_id):
+    customer = Customer.objects.get(id=customer_id)
+    sales = Sale.objects.filter(customer=customer).order_by('-date')
+
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+
+    y = height - 50
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y, f"Purchase History for {customer.name}")
+    y -= 30
+
+    p.setFont("Helvetica", 10)
+    p.drawString(50, y, "Invoice ID")
+    p.drawString(150, y, "Date")
+    p.drawString(300, y, "Total Amount (₹)")
+    y -= 20
+
+    for sale in sales:
+        if y < 50:
+            p.showPage()
+            y = height - 50
+
+        p.drawString(50, y, str(sale.id))
+        p.drawString(150, y, sale.date.strftime('%Y-%m-%d %H:%M'))
+        p.drawString(300, y, f"{sale.total_amount:.2f}")
+        y -= 20
+
+    p.showPage()
+    p.save()
+
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    filename = f"{customer.name.replace(' ', '_')}_Purchase_History.pdf"
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+    return response

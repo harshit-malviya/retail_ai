@@ -2,7 +2,14 @@
 {% block content %}
 <div class="container my-4">
     <h2 class="mb-4">Purchase History – {{ customer.name }}</h2>
-
+    <div class="mb-3 d-flex gap-2">
+        <a href="{% url 'billing:export_purchase_excel' customer.id %}" class="btn btn-success">
+            📊 Export to Excel
+        </a>
+        <a href="{% url 'billing:export_purchase_pdf' customer.id %}" class="btn btn-danger">
+            🧾 Export to PDF
+        </a>
+    </div>    
     {% if purchases %}
     <table class="table table-striped">
         <thead>
