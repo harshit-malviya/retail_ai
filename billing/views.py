@@ -30,6 +30,15 @@ def create_sale(request):
                 sale.save()
                 sale.customer.last_purchase_date = sale.date  # or timezone.now()
                 sale.customer.save()
+                customer = sale.customer
+                customer.last_purchase = sale.date
+                customer.visit_count += 1
+                customer.save()
+                customer1 = sale.customer
+                customer1.last_purchase = sale.date
+                customer1.visit_count += 1
+                customer1.total_spent += sale.total_amount
+                customer1.save()
 
                 return redirect('billing:sale_detail', sale.id)  # You'll implement this view next
 
