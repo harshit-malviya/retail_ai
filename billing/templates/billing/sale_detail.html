@@ -7,6 +7,7 @@
     <p><strong>Date:</strong> {{ sale.date }}</p>
     <p><strong>Customer:</strong> {{ sale.customer.name }}</p>
     <p><strong>Phone:</strong> {{ sale.customer.phone }}</p>
+    <p><strong>Last Purchase:</strong> {{ sale.customer.last_purchase_date|date:"Y-m-d H:i" }}</p>
 
     <hr>
 

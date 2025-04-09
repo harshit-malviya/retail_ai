@@ -12,8 +12,7 @@ class Customer(models.Model):
 
     total_spent = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     visit_count = models.PositiveIntegerField(default=0)
-    last_purchase_date = models.DateField(blank=True, null=True)
-
+    last_purchase_date = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
