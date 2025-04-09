@@ -49,6 +49,9 @@
                        onclick="return confirm('Are you sure you want to delete this customer?');">
                         Delete
                     </a>
+                    <a href="{% url 'billing:purchase_history' customer.pk %}" class="btn btn-sm btn-outline-primary">
+                        View History
+                    </a>
                 </td>
             </tr>
             {% empty %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Purchase History – {{ customer.name }}</h2>
+
+    {% if purchases %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Invoice #</th>
+                <th>Date</th>
+                <th>Total Amount (₹)</th>
+                <th>View</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in purchases %}
+            <tr>
+                <td>#{{ sale.id }}</td>
+                <td>{{ sale.date|date:"Y-m-d H:i" }}</td>
+                <td>₹{{ sale.total_amount }}</td>
+                <td>
+                    <a href="{% url 'billing:sale_detail' sale.id %}" class="btn btn-sm btn-outline-primary">
+                        View Invoice
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No purchases found for this customer.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
 <h2>Invoice #{{ sale.id }}</h2>
 
 <p><strong>Date:</strong> {{ sale.date }}</p>
@@ -34,3 +37,4 @@
 <hr>
 
 <p><strong>Total Amount:</strong> ₹{{ sale.total_amount }}</p>
+{% endblock %}

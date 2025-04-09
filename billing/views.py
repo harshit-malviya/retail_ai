@@ -57,3 +57,15 @@ def get_product_info(request):
         return JsonResponse(data)
     except Product.DoesNotExist:
         return JsonResponse({'error': 'Product not found'}, status=404)
+
+from django.shortcuts import render, get_object_or_404
+from customers.models import Customer
+from .models import Sale
+
+def customer_purchase_history(request, customer_id):
+    customer = get_object_or_404(Customer, id=customer_id)
+    purchases = Sale.objects.filter(customer=customer).order_by('-date')
+    return render(request, 'billing/purchase_history.html', {
+        'customer': customer,
+        'purchases': purchases
+    })
