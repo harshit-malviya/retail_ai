@@ -6,18 +6,18 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <div class="container my-4">
-    <h2 class="mb-4">Create Sale</h2>
+    <h2 class="mt-5 text-center">Create Sale</h2>
 
-    <form method="post" id="sale-form">
+    <form method="post" id="sale-form" class="bg-light p-4 rounded shadow">
         {% csrf_token %}
-        <div class="mb-3">
+        <div class="mb-3 text-center">
             {{ form.as_p }}
         </div>
 
         {{ formset.management_form }}
 
-        <table class="table table-bordered" id="items-table">
-            <thead>
+        <table class="table table-bordered table-striped" id="items-table">
+            <thead class="table-dark">
                 <tr>
                     <th>Product</th>
                     <th>Quantity</th>
@@ -26,7 +26,7 @@
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class = "table-active">
                 {% for form in formset %}
                 <tr class="item-row">
                     <td>{{ form.product }}</td>
@@ -165,7 +165,6 @@
     
         updateSubtotals();
     });
-    </script>
-    
+</script>
 
 {% endblock %}
