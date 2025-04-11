@@ -54,3 +54,16 @@ def get_sale_by_item(request):
         })
     except SaleItem.DoesNotExist:
         return JsonResponse({'error': 'SaleItem not found'}, status=404)
+def load_sale_items(request):
+    sale_id = request.GET.get('sale_id')
+    items = SaleItem.objects.filter(sale_id=sale_id).select_related('product')
+    data = [
+        {
+            'id': item.id,
+            'product': item.product.name,
+            'quantity': item.quantity,
+            'price': float(item.price),
+        }
+        for item in items
+    ]
+    return JsonResponse(data, safe=False)

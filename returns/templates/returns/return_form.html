@@ -79,6 +79,42 @@ $(document).ready(function () {
         });
     }
 
+    let itemPrices = {};  // Holds {item_id: price}
+
+function calculateRefund() {
+    const itemId = $('#id_item').val();
+    const quantity = parseFloat($('#id_quantity').val());
+    const price = itemPrices[itemId];
+
+    if (!isNaN(quantity) && !isNaN(price)) {
+        const refund = (quantity * price).toFixed(2);
+        $('#id_refund_amount').val(refund);
+    }
+}
+
+$('#id_sale').change(function () {
+    const saleId = $(this).val();
+    $.ajax({
+        url: "{% url 'returns:ajax_load_sale_items' %}",
+        data: { 'sale_id': saleId },
+        success: function (data) {
+            const itemSelect = $('#id_item');
+            itemSelect.empty().append('<option value="">Select item</option>');
+            itemPrices = {};  // reset
+
+            data.forEach(function (item) {
+                itemSelect.append(`<option value="${item.id}">${item.product} (Qty: ${item.quantity})</option>`);
+                itemPrices[item.id] = item.price;  // store price
+            });
+        }
+    });
+});
+
+// Watch for item and quantity changes
+$('#id_item, #id_quantity').on('change keyup', calculateRefund);
+
+
+
     // Press Enter in search bar
     $('#sale_item_search').on('keypress', function (e) {
         if (e.which === 13) {
