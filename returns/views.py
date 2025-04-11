@@ -37,3 +37,20 @@ def load_sale_items(request):
         for item in items
     ]
     return JsonResponse(data, safe=False)
+
+from billing.models import SaleItem
+from django.http import JsonResponse
+
+def get_sale_by_item(request):
+    item_id = request.GET.get('item_id')
+    try:
+        item = SaleItem.objects.select_related('sale', 'product').get(id=item_id)
+        return JsonResponse({
+            'sale_id': item.id,
+            'item_id': item.id,
+            'product_name': item.product.name,
+            'quantity': item.quantity,
+            'price': float(item.price),
+        })
+    except SaleItem.DoesNotExist:
+        return JsonResponse({'error': 'SaleItem not found'}, status=404)

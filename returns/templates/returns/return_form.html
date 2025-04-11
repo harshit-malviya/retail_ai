@@ -1,22 +1,33 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
 {% load static %}
+{% load widget_tweaks %}
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow-lg">
+<div class="container mt-3">
+    <div class="card shadow">
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">Return a Product</h4>
         </div>
         <div class="card-body">
+
+            <!-- Search by SaleItem ID -->
+            <div class="mb-4">
+                <label for="sale_item_search" class="form-label">Enter Invoice ID</label>
+                <div class="input-group">
+                    <input type="text" id="sale_item_search" class="form-control" placeholder="Invoice #1">
+                    <button type="button" class="btn btn-outline-primary" id="fetch_sale_data">Search</button>
+                </div>
+            </div>
+
             <form method="post">
                 {% csrf_token %}
+
                 <div class="mb-3">
-                    <label for="id_sale" class="form-label">Select Customer</label>
+                    <label for="id_sale" class="form-label">Sale</label>
                     {{ form.sale|add_class:"form-select" }}
                 </div>
 
                 <div class="mb-3">
-                    <label for="id_item" class="form-label">Product</label>
+                    <label for="id_item" class="form-label">Item</label>
                     {{ form.item|add_class:"form-select" }}
                 </div>
 
@@ -32,7 +43,7 @@
 
                 <div class="mb-3">
                     <label for="id_reason" class="form-label">Reason for Return</label>
-                    {{ form.reason|add_class:"form-control" |attr:"style:height: 50px;" }}
+                    {{ form.reason|add_class:"form-control" |attr:"style:height: 30px;" }}
                 </div>
 
                 <button type="submit" class="btn btn-success w-100">Submit Return</button>
@@ -41,26 +52,74 @@
     </div>
 </div>
 
+<!-- JQuery for dynamic sale/item loading -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $('#id_sale').change(function () {
-            const saleId = $(this).val();
-            $.ajax({
-                url: "{% url 'returns:ajax_load_sale_items' %}",
-                data: {
-                    'sale_id': saleId
-                },
-                success: function (data) {
-                    const itemSelect = $('#id_item');
-                    itemSelect.empty();
-                    itemSelect.append('<option value="">Select item</option>');
-                    data.forEach(function (item) {
-                        itemSelect.append(`<option value="${item.id}">${item.product} (Qty: ${item.quantity})</option>`);
-                    });
-                }
-            });
+$(document).ready(function () {
+    function fetchSaleItemById(itemId) {
+        if (!itemId) return;
+
+        $.ajax({
+            url: "{% url 'returns:ajax_get_sale_by_item' %}",
+            data: { 'item_id': itemId },
+            success: function (data) {
+                $('#id_sale').val(data.sale_id).change();
+
+                setTimeout(() => {
+                    $('#id_item').val(data.item_id);
+                }, 300);
+
+                // Switch button to Clear
+                $('#fetch_sale_data').text('Clear').removeClass('btn-outline-primary').addClass('btn-outline-danger');
+                $('#fetch_sale_data').data('mode', 'clear');
+            },
+            error: function () {
+                alert("Invalid Sale Item ID");
+            }
+        });
+    }
+
+    // Press Enter in search bar
+    $('#sale_item_search').on('keypress', function (e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            $('#fetch_sale_data').click();
+        }
+    });
+
+    // Click handler: toggle between search and clear
+    $('#fetch_sale_data').click(function () {
+        const mode = $(this).data('mode') || 'search';
+
+        if (mode === 'search') {
+            const itemId = $('#sale_item_search').val();
+            fetchSaleItemById(itemId);
+        } else {
+            // Reset the form
+            $('#sale_item_search').val('');
+            $('#fetch_sale_data').text('Search').removeClass('btn-outline-danger').addClass('btn-outline-primary');
+            $(this).data('mode', 'search');
+            $('#id_sale').val('').change();
+            $('#id_item').empty().append('<option value="">Select item</option>');
+        }
+    });
+
+    // Load SaleItems when Sale is changed
+    $('#id_sale').change(function () {
+        const saleId = $(this).val();
+        $.ajax({
+            url: "{% url 'returns:ajax_load_sale_items' %}",
+            data: { 'sale_id': saleId },
+            success: function (data) {
+                const itemSelect = $('#id_item');
+                itemSelect.empty();
+                itemSelect.append('<option value="">Select item</option>');
+                data.forEach(function (item) {
+                    itemSelect.append(`<option value="${item.id}">${item.product} (Qty: ${item.quantity})</option>`);
+                });
+            }
         });
     });
+});
 </script>
 {% endblock %}
