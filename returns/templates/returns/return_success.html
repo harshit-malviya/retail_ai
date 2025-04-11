@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="alert alert-success shadow-lg p-4">
+        <h4 class="alert-heading">✅ Product Return Successful</h4>
+        <p>The item has been successfully returned and all related records have been updated.</p>
+        <hr>
+        <a href="{% url 'returns:return_product' %}" class="btn btn-primary mt-3">⬅️ Go Back to Returns</a>
+    </div>
+</div>
+{% endblock %}

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'customers',
     'billing',
     'returns',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

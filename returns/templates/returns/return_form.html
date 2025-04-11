@@ -1,9 +1,66 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load static %}
 {% block content %}
-    <h2>Return a Product</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Return Product</button>
-    </form>
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Return a Product</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_sale" class="form-label">Select Customer</label>
+                    {{ form.sale|add_class:"form-select" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_item" class="form-label">Product</label>
+                    {{ form.item|add_class:"form-select" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_quantity" class="form-label">Quantity to Return</label>
+                    {{ form.quantity|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_refund_amount" class="form-label">Refund Amount</label>
+                    {{ form.refund_amount|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_reason" class="form-label">Reason for Return</label>
+                    {{ form.reason|add_class:"form-control" |attr:"style:height: 50px;" }}
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Submit Return</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#id_sale').change(function () {
+            const saleId = $(this).val();
+            $.ajax({
+                url: "{% url 'returns:ajax_load_sale_items' %}",
+                data: {
+                    'sale_id': saleId
+                },
+                success: function (data) {
+                    const itemSelect = $('#id_item');
+                    itemSelect.empty();
+                    itemSelect.append('<option value="">Select item</option>');
+                    data.forEach(function (item) {
+                        itemSelect.append(`<option value="${item.id}">${item.product} (Qty: ${item.quantity})</option>`);
+                    });
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
