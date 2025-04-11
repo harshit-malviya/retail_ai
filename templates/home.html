@@ -5,4 +5,85 @@
 {% block content %}
 <h1>Welcome to Retail AI Dashboard</h1>
 <p>Use the navigation bar to manage products, customers, and more.</p>
+<div style="padding-bottom: 13px;">
+    <label for="view-select">View by:</label>
+    <select id="view-select">
+        <option value="monthly">Monthly</option>
+        <option value="daily">Daily</option>
+    </select>
+</div>
+
+<div class="row">
+    <div class="card shadow border-0 mb-7 col-md-6 col-lg-6">
+        <div class="card-body">
+            <h5 class="card-title">Sales Over Time</h5>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let chart;
+
+        function renderChart(labels, data, labelText) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: labelText,
+                        data: data,
+                        borderColor: 'rgba(255, 0, 255, 1)',
+                        backgroundColor: 'rgba(255, 0, 255, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: labelText }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Total Sales (₹)' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Time' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Get data from Django context
+        const initialLabels = {{ labels|safe }};
+        const initialData = {{ data|safe }};
+        const labelText = '{{ label_text }}';
+
+        renderChart(initialLabels, initialData, labelText);
+
+        // Bind dropdown change
+        const viewSelect = document.getElementById('view-select');
+        if (viewSelect) {
+            viewSelect.addEventListener('change', function () {
+                const viewType = this.value;
+                window.location.href = `/?view=${viewType}`;
+            });
+
+            // Preserve selected option on reload
+            const currentView = new URLSearchParams(window.location.search).get("view") || "monthly";
+            viewSelect.value = currentView;
+        }
+    });
+</script>
+
 {% endblock %}
