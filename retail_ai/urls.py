@@ -26,4 +26,5 @@ urlpatterns = [
     path('billing/', include('billing.urls', namespace='billing')),
     path('', views.home, name='home'),
     # path('products/', include('products.urls', namespace='products')),
+    path('returns/', include('returns.urls')),
 ]
