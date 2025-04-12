@@ -20,3 +20,23 @@ class SaleItem(models.Model):
     def get_total_price(self):
         return self.quantity * self.price
 
+class DailySale(models.Model):
+    date = models.DateField(unique=True)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.date} - ₹{self.total_amount}"
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from .models import Sale, DailySale
+from django.db.models import Sum
+from django.utils.timezone import localdate
+
+@receiver(post_save, sender=Sale)
+def update_daily_sale(sender, instance, **kwargs):
+    today = localdate(instance.date)  # handle timezone-aware datetimes
+    total = Sale.objects.filter(date__date=today).aggregate(total=Sum('total_amount'))['total'] or 0
+    DailySale.objects.update_or_create(
+        date=today,
+        defaults={'total_amount': total}
+    )

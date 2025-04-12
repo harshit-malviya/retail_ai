@@ -4,7 +4,8 @@ from django.contrib import admin
 # billing/admin.py (or the app where you defined Sale and SaleItem)
 
 from django.contrib import admin
-from .models import Sale, SaleItem
+from .models import Sale, SaleItem, DailySale
 
 admin.site.register(Sale)
 admin.site.register(SaleItem)
+admin.site.register(DailySale)

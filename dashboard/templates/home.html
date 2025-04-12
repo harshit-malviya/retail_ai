@@ -5,6 +5,7 @@
 {% block content %}
 <h1>Welcome to Retail AI Dashboard</h1>
 <p>Use the navigation bar to manage products, customers, and more.</p>
+
 <div style="padding-bottom: 13px;">
     <label for="view-select">View by:</label>
     <select id="view-select">
@@ -13,8 +14,19 @@
     </select>
 </div>
 
+<!-- 💰 Today’s Revenue -->
 <div class="row">
-    <div class="card shadow border-0 mb-7 col-md-6 col-lg-6">
+    <div class="card shadow border-0 mb-4 col-md-6 col-lg-6">
+        <div class="card-body">
+            <h5 class="card-title">Today's Revenue</h5>
+            <p style="font-size: 1.7rem; font-weight: bold;">₹{{ today_revenue }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- 📈 Sales Over Time -->
+<div class="row">
+    <div class="card shadow border-0 mb-4 col-md-6 col-lg-6">
         <div class="card-body">
             <h5 class="card-title">Sales Over Time</h5>
             <div class="chart-container">
@@ -22,25 +34,38 @@
             </div>
         </div>
     </div>
+
+    <!-- 📊 Revenue Last 7 Days -->
+    <div class="card shadow border-0 mb-4 col-md-6 col-lg-6">
+        <div class="card-body">
+            <h5 class="card-title">Revenue (Last 7 Days)</h5>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
+
 <!-- Load Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        let chart;
+        let salesChart, revenueChart;
 
-        function renderChart(labels, data, labelText) {
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            if (chart) chart.destroy();
-            chart = new Chart(ctx, {
+        function renderChart(id, labels, data, labelText, color = 'rgba(255, 0, 255)') {
+            const ctx = document.getElementById(id).getContext('2d');
+            if (id === 'salesChart' && salesChart) salesChart.destroy();
+            if (id === 'revenueChart' && revenueChart) revenueChart.destroy();
+
+            const chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
                         label: labelText,
                         data: data,
-                        borderColor: 'rgba(255, 0, 255, 1)',
-                        backgroundColor: 'rgba(255, 0, 255, 0.2)',
+                        borderColor: color,
+                        backgroundColor: color.replace('1)', '0.2)'),
                         tension: 0.4,
                         fill: true
                     }]
@@ -62,16 +87,23 @@
                     }
                 }
             });
+
+            if (id === 'salesChart') salesChart = chart;
+            if (id === 'revenueChart') revenueChart = chart;
         }
 
         // Get data from Django context
-        const initialLabels = {{ labels|safe }};
-        const initialData = {{ data|safe }};
+        const salesLabels = {{ labels|safe }};
+        const salesData = {{ data|safe }};
         const labelText = '{{ label_text }}';
 
-        renderChart(initialLabels, initialData, labelText);
+        const revenueLabels = {{ history_labels|safe }};
+        const revenueData = {{ history_data|safe }};
 
-        // Bind dropdown change
+        renderChart('salesChart', salesLabels, salesData, labelText, 'rgba(255, 0, 255, 1)');
+        renderChart('revenueChart', revenueLabels, revenueData, 'Revenue Last 7 Days', 'rgba(54, 162, 235, 1)');
+
+        // Dropdown logic
         const viewSelect = document.getElementById('view-select');
         if (viewSelect) {
             viewSelect.addEventListener('change', function () {
@@ -79,7 +111,6 @@
                 window.location.href = `/?view=${viewType}`;
             });
 
-            // Preserve selected option on reload
             const currentView = new URLSearchParams(window.location.search).get("view") || "monthly";
             viewSelect.value = currentView;
         }
