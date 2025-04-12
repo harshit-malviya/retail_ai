@@ -2,7 +2,7 @@
 {% load static %}
 {% load widget_tweaks %}
 {% block content %}
-<div class="container mt-3">
+<div class="container mt-5">
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
             <h4 class="mb-0">Return a Product</h4>
@@ -33,12 +33,12 @@
 
                 <div class="mb-3">
                     <label for="id_quantity" class="form-label">Quantity to Return</label>
-                    {{ form.quantity|add_class:"form-control" }}
+                    {{ form.quantity|add_class:"form-control" |attr:"type:number" }}
                 </div>
 
                 <div class="mb-3">
                     <label for="id_refund_amount" class="form-label">Refund Amount</label>
-                    {{ form.refund_amount|add_class:"form-control" }}
+                    {{ form.refund_amount|add_class:"form-control" |attr:"readonly:readonly" }}
                 </div>
 
                 <div class="mb-3">
@@ -52,110 +52,116 @@
     </div>
 </div>
 
-<!-- JQuery for dynamic sale/item loading -->
+<!-- JQuery for dynamic logic -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function () {
-    function fetchSaleItemById(itemId) {
-        if (!itemId) return;
+    let itemPrices = {};
+    let itemQuantities = {};
 
-        $.ajax({
-            url: "{% url 'returns:ajax_get_sale_by_item' %}",
-            data: { 'item_id': itemId },
-            success: function (data) {
-                $('#id_sale').val(data.sale_id).change();
+    function calculateRefund() {
+        const itemId = $('#id_item').val();
+        const quantity = parseFloat($('#id_quantity').val());
+        const price = itemPrices[itemId];
 
-                setTimeout(() => {
-                    $('#id_item').val(data.item_id);
-                }, 300);
-
-                // Switch button to Clear
-                $('#fetch_sale_data').text('Clear').removeClass('btn-outline-primary').addClass('btn-outline-danger');
-                $('#fetch_sale_data').data('mode', 'clear');
-            },
-            error: function () {
-                alert("Invalid Sale Item ID");
-            }
-        });
+        if (!isNaN(quantity) && !isNaN(price)) {
+            const refund = (quantity * price).toFixed(2);
+            $('#id_refund_amount').val(refund);
+        }
     }
 
-    let itemPrices = {};  // Holds {item_id: price}
+    $(document).ready(function () {
+        // Search via button or Enter key
+        function fetchSaleItemById(itemId) {
+            if (!itemId) return;
 
-function calculateRefund() {
-    const itemId = $('#id_item').val();
-    const quantity = parseFloat($('#id_quantity').val());
-    const price = itemPrices[itemId];
+            $.ajax({
+                url: "{% url 'returns:ajax_get_sale_by_item' %}",
+                data: { 'item_id': itemId },
+                success: function (data) {
+                    $('#id_sale').val(data.sale_id).change();
 
-    if (!isNaN(quantity) && !isNaN(price)) {
-        const refund = (quantity * price).toFixed(2);
-        $('#id_refund_amount').val(refund);
-    }
-}
+                    setTimeout(() => {
+                        $('#id_item').val(data.item_id).change();
+                    }, 300);
 
-$('#id_sale').change(function () {
-    const saleId = $(this).val();
-    $.ajax({
-        url: "{% url 'returns:ajax_load_sale_items' %}",
-        data: { 'sale_id': saleId },
-        success: function (data) {
-            const itemSelect = $('#id_item');
-            itemSelect.empty().append('<option value="">Select item</option>');
-            itemPrices = {};  // reset
-
-            data.forEach(function (item) {
-                itemSelect.append(`<option value="${item.id}">${item.product} (Qty: ${item.quantity})</option>`);
-                itemPrices[item.id] = item.price;  // store price
+                    // Change button to "Clear"
+                    $('#fetch_sale_data').text('Clear')
+                        .removeClass('btn-outline-primary')
+                        .addClass('btn-outline-danger')
+                        .data('mode', 'clear');
+                },
+                error: function () {
+                    alert("Invalid Sale Item ID");
+                }
             });
         }
-    });
-});
 
-// Watch for item and quantity changes
-$('#id_item, #id_quantity').on('change keyup', calculateRefund);
-
-
-
-    // Press Enter in search bar
-    $('#sale_item_search').on('keypress', function (e) {
-        if (e.which === 13) {
-            e.preventDefault();
-            $('#fetch_sale_data').click();
-        }
-    });
-
-    // Click handler: toggle between search and clear
-    $('#fetch_sale_data').click(function () {
-        const mode = $(this).data('mode') || 'search';
-
-        if (mode === 'search') {
-            const itemId = $('#sale_item_search').val();
-            fetchSaleItemById(itemId);
-        } else {
-            // Reset the form
-            $('#sale_item_search').val('');
-            $('#fetch_sale_data').text('Search').removeClass('btn-outline-danger').addClass('btn-outline-primary');
-            $(this).data('mode', 'search');
-            $('#id_sale').val('').change();
-            $('#id_item').empty().append('<option value="">Select item</option>');
-        }
-    });
-
-    // Load SaleItems when Sale is changed
-    $('#id_sale').change(function () {
-        const saleId = $(this).val();
-        $.ajax({
-            url: "{% url 'returns:ajax_load_sale_items' %}",
-            data: { 'sale_id': saleId },
-            success: function (data) {
-                const itemSelect = $('#id_item');
-                itemSelect.empty();
-                itemSelect.append('<option value="">Select item</option>');
-                data.forEach(function (item) {
-                    itemSelect.append(`<option value="${item.id}">${item.product} (Qty: ${item.quantity})</option>`);
-                });
+        $('#sale_item_search').on('keypress', function (e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                $('#fetch_sale_data').click();
             }
         });
+
+        $('#fetch_sale_data').click(function () {
+            const mode = $(this).data('mode') || 'search';
+
+            if (mode === 'search') {
+                const itemId = $('#sale_item_search').val();
+                fetchSaleItemById(itemId);
+            } else {
+                // Clear form
+                $('#sale_item_search').val('');
+                $(this).text('Search')
+                    .removeClass('btn-outline-danger')
+                    .addClass('btn-outline-primary')
+                    .data('mode', 'search');
+                $('#id_sale').val('').change();
+                $('#id_item').empty().append('<option value="">Select item</option>');
+                $('#id_quantity').val('');
+                $('#id_refund_amount').val('');
+            }
+        });
+
+        $('#id_sale').change(function () {
+            const saleId = $(this).val();
+            $.ajax({
+                url: "{% url 'returns:ajax_load_sale_items' %}",
+                data: { 'sale_id': saleId },
+                success: function (data) {
+                    const itemSelect = $('#id_item');
+                    itemSelect.empty().append('<option value="">Select item</option>');
+                    itemPrices = {};
+                    itemQuantities = {};
+
+                    data.forEach(function (item) {
+                        itemSelect.append(`<option value="${item.id}">${item.product} (Qty: ${item.quantity})</option>`);
+                        itemPrices[item.id] = item.price;
+                        itemQuantities[item.id] = item.quantity;
+                    });
+                }
+            });
+        });
+
+        $('#id_item').change(function () {
+            const itemId = $(this).val();
+            const maxQty = itemQuantities[itemId] || '';
+            $('#id_quantity').attr('max', maxQty);
+            calculateRefund();
+        });
+
+        $('#id_quantity').on('change keyup', function () {
+            const itemId = $('#id_item').val();
+            const entered = parseFloat($(this).val());
+            const max = parseFloat(itemQuantities[itemId]);
+
+            if (!isNaN(entered) && !isNaN(max) && entered > max) {
+                alert(`You can't return more than ${max} items.`);
+                $(this).val(max);
+            }
+
+            calculateRefund();
+        });
     });
-});
 </script>
 {% endblock %}
