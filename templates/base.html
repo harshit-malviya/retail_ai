@@ -15,25 +15,25 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav nav-pills">
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'customers:customer_list' %}">Customers</a>
+                        <a class="nav-link {% if request.path == '/customers/' %}active{% endif %}" href="{% url 'customers:customer_list' %}">Customers</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'products:product_list' %}">Products</a>
+                        <a class="nav-link {% if request.path == '/products/' %}active{% endif %}" href="{% url 'products:product_list' %}">Products</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'products:category_list' %}">Category</a>
+                        <a class="nav-link {% if request.path == '/categories/' %}active{% endif %}" href="{% url 'products:category_list' %}">Category</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'billing:create_sale' %}">Sale</a>
+                        <a class="nav-link {% if request.path == '/billing/create/' %}active{% endif %}" href="{% url 'billing:create_sale' %}">Sale</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'returns:return_product' %}">Return</a>
+                        <a class="nav-link {% if request.path == '/returns/return/' %}active{% endif %}" href="{% url 'returns:return_product' %}">Return</a>
                     </li>
                     <!-- Add more navigation links here -->
                 </ul>
