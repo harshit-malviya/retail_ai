@@ -75,6 +75,47 @@
         </div>
     </div>
 </div>
+<!-- 🐢 Slow-moving Products -->
+<div class="row">
+    <div class="card shadow border-0 mb-4 col-md-12">
+        <div class="card-body">
+            <h5 class="card-title text-warning">🐢 Slow-moving Products (No Sale in Last {{ days_threshold }} Days)</h5>
+
+            <form method="get" class="mb-2">
+                <label for="slow_days">Show unsold in last</label>
+                <select name="slow_days" id="slow_days" onchange="this.form.submit()" class="form-select-sm">
+                    {% for day in slow_days_options %}
+                        <option value="{{ day }}" {% if day == days_threshold %}selected{% endif %}>{{ day }} days</option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            {% if slow_moving_products %}
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Category</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in slow_moving_products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.quantity }}</td>
+                            <td>{{ product.category.name }}</td>  {# optional field #}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-success">🎉 No slow-moving products in the last {{ days_threshold }} days.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 <!-- Load Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
