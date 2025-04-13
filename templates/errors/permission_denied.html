@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="alert alert-danger shadow-lg p-4">
+        <h1 class="alert-heading">🚫 Permission Denied</h1>
+        <h5>You do not have permission to access this page.</h5>
+        <hr>
+        <a href="{{ referer }}" class="btn btn-primary mt-3">← Go back</a>
+    </div>
+</div>
+{% endblock %}
