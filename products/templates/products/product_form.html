@@ -1,13 +1,93 @@
 {% extends 'base.html' %}
-{% block content %}
 {% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
 <div class="container mt-5">
-    <h2>Add Product</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary">Save</button>
-    </form>
-    <a href="{% url 'products:product_list' %}" class="btn btn-secondary mt-2">Back to Products</a>
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">{{ title }}</h4>
+        </div>
+        <div class="card-body">
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row">
+                    <!-- Left Column -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Product Name</label>
+                            {{ form.name|add_class:"form-control" }}
+                            {{ form.name.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                            {{ form.category|add_class:"form-control" }}
+                            {{ form.category.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.brand.id_for_label }}" class="form-label">Brand</label>
+                            {{ form.brand|add_class:"form-control" }}
+                            {{ form.brand.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.size.id_for_label }}" class="form-label">Size</label>
+                            {{ form.size|add_class:"form-control" }}
+                            {{ form.size.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.color.id_for_label }}" class="form-label">Color</label>
+                            {{ form.color|add_class:"form-control" }}
+                            {{ form.color.errors }}
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="{{ form.cost_price.id_for_label }}" class="form-label">Cost Price</label>
+                            {{ form.cost_price|add_class:"form-control" }}
+                            {{ form.cost_price.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.selling_price.id_for_label }}" class="form-label">Selling Price</label>
+                            {{ form.selling_price|add_class:"form-control" }}
+                            {{ form.selling_price.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.low_stock_threshold.id_for_label }}" class="form-label">Low Stock Threshold</label>
+                            {{ form.low_stock_threshold|add_class:"form-control" }}
+                            {{ form.low_stock_threshold.errors }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.stock_quantity.id_for_label }}" class="form-label">Stock Quantity</label>
+                            {{ form.stock_quantity|add_class:"form-control" }}
+                            {{ form.stock_quantity.errors }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-success me-2">Save</button>
+                    <a href="{% url 'products:product_list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

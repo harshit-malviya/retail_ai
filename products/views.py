@@ -63,7 +63,7 @@ def product_create(request):
     if form.is_valid():
         form.save()
         return redirect('products:product_list')
-    return render(request, 'products/product_form.html', {'form': form})
+    return render(request, 'products/product_form.html', {'form': form, 'title': 'Add Product'})
 
 def product_list(request):
     products = Product.objects.all()
@@ -77,7 +77,7 @@ def product_edit(request, pk):
     if form.is_valid():
         form.save()
         return redirect('products:product_list')
-    return render(request, 'products/product_form.html', {'form': form})
+    return render(request, 'products/product_form.html', {'form': form, 'title': 'Edit Product'})
 
 # PRODUCT: Delete
 def product_delete(request, pk):
