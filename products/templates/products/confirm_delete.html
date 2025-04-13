@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-5">
-    <h2>Delete {{ type }}</h2>
-    <p>Are you sure you want to delete <strong>{{ object }}</strong>?</p>
+<div class="container m-3">
+    <h2 class="mb-4">Delete {{ type }}</h2>
+    <div class="alert alert-warning" role="alert">
+        Are you sure you want to delete <strong>"{{ object }}"?</strong>
+    </div>
     <form method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Yes, Delete</button>
