@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'returns',
     'widget_tweaks',
     'dashboard',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -56,6 +57,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'retail_ai.urls'
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 TEMPLATES = [
     {
