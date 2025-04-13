@@ -47,9 +47,9 @@
 
 <!-- 🛑 Low Stock Alerts -->
 <div class="row">
-    <div class="card shadow border-0 mb-4 col-md-12 alert alert-danger">
+    <div class="card shadow border-0 mb-4 col-md-12 alert {% if low_stock_products %}alert-danger{% else %}alert-success{% endif %}">
         <div class="card-body">
-            <h5 class="card-title text-danger">⚠️ Low Stock Alerts</h5>
+            <h5 class="card-title {% if low_stock_products %}text-danger{% else %}text-success{% endif %}">⚠️ Low Stock Alerts</h5>
             {% if low_stock_products %}
                 <table class="table table-striped">
                     <thead>
