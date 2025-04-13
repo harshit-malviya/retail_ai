@@ -57,8 +57,7 @@ def home(request):
 
     # Products NOT sold in X days
     slow_days_options = [7, 15, 30, 60, 90]
-    slow_moving_products = Product.objects.exclude(id__in=recently_sold_product_ids)
-
+    slow_moving_products = Product.objects.exclude(saleitem__in=recently_sold_product_ids)
 
     return render(request, 'home.html', {
         'labels': json.dumps(labels),
