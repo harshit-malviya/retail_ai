@@ -5,7 +5,7 @@ from django import forms
 from django.shortcuts import get_object_or_404
 from django.db.models import F, Value
 from django.db.models.functions import Lower, Replace
-
+from django.urls import reverse
 
 # Forms
 class ProductForm(forms.ModelForm):
@@ -43,10 +43,11 @@ def category_edit(request, pk):
 # CATEGORY: Delete
 def category_delete(request, pk):
     category = get_object_or_404(ProductCategory, pk=pk)
+    previous_url = request.META.get('HTTP_REFERER', reverse('products:category_list'))
     if request.method == 'POST':
         category.delete()
         return redirect('products:category_list')
-    return render(request, 'products/confirm_delete.html', {'object': category, 'type': 'Category'})
+    return render(request, 'products/confirm_delete.html', {'object': category, 'type': 'Category', 'cancel_url': previous_url})
 
 # CATEGORY: Search
 def category_list(request):
@@ -82,10 +83,11 @@ def product_edit(request, pk):
 # PRODUCT: Delete
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
+    previous_url = request.META.get('HTTP_REFERER', reverse('products:product_list'))
     if request.method == 'POST':
         product.delete()
         return redirect('products:product_list')
-    return render(request, 'products/confirm_delete.html', {'object': product, 'type': 'Product'})
+    return render(request, 'products/confirm_delete.html', {'object': product, 'type': 'Product', 'cancel_url': previous_url})
 
 # PRODUCT: Search
 def product_list(request):
