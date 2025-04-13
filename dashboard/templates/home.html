@@ -103,7 +103,7 @@
                         {% for product in slow_moving_products %}
                         <tr>
                             <td>{{ product.name }}</td>
-                            <td>{{ product.quantity }}</td>
+                            <td>{{ product.stock_quantity }}</td>
                             <td>{{ product.category.name }}</td>  {# optional field #}
                         </tr>
                         {% endfor %}
