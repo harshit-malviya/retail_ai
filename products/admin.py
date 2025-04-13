@@ -5,6 +5,6 @@ from .models import Product, ProductCategory
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'size', 'color', 'cost_price', 'selling_price', 'stock_quantity')
+    list_display = ('name', 'category', 'size', 'color', 'cost_price', 'selling_price', 'stock_quantity', 'low_stock_threshold')
 
 admin.site.register(ProductCategory)

@@ -6,14 +6,6 @@
 <h1>Welcome to Retail AI Dashboard</h1>
 <p>Use the navigation bar to manage products, customers, and more.</p>
 
-<div style="padding-bottom: 13px;">
-    <label for="view-select">View by:</label>
-    <select id="view-select">
-        <option value="monthly">Monthly</option>
-        <option value="daily">Daily</option>
-    </select>
-</div>
-
 <!-- 💰 Today’s Revenue -->
 <div class="row">
     <div class="card shadow border-0 mb-4 col-md-6 col-lg-6">
@@ -26,6 +18,13 @@
 
 <!-- 📈 Sales Over Time -->
 <div class="row">
+    <div style="padding-bottom: 13px;">
+        <label for="view-select">View by:</label>
+        <select id="view-select">
+            <option value="monthly">Monthly</option>
+            <option value="daily">Daily</option>
+        </select>
+    </div>
     <div class="card shadow border-0 mb-4 col-md-6 col-lg-6">
         <div class="card-body">
             <h5 class="card-title">Sales Over Time</h5>
@@ -46,6 +45,36 @@
     </div>
 </div>
 
+<!-- 🛑 Low Stock Alerts -->
+<div class="row">
+    <div class="card shadow border-0 mb-4 col-md-12 alert alert-danger">
+        <div class="card-body">
+            <h5 class="card-title text-danger">⚠️ Low Stock Alerts</h5>
+            {% if low_stock_products %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Threshold</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in low_stock_products %}
+                        <tr>
+                            <td>{{ product.name }}</td>
+                            <td><span class="badge bg-danger">{{ product.stock_quantity }}</span></td>
+                            <td>{{ product.low_stock_threshold }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-success">✅ All products are well stocked.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 <!-- Load Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>

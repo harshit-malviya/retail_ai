@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from billing.models import Sale, DailySale
+from products.models import Product
 from django.db.models import Sum
 from datetime import date, timedelta
 from django.db.models.functions import TruncDate
 import json
+from django.db.models import Sum, F
 
 def home(request):
     view_type = request.GET.get('view', 'monthly')
@@ -42,6 +44,9 @@ def home(request):
     history_labels = [entry.date.strftime('%Y-%m-%d') for entry in last_7_days]
     history_data = [float(entry.total_amount) for entry in last_7_days]
 
+    low_stock_products = Product.objects.filter(stock_quantity__lt=F('low_stock_threshold'))
+    
+
     return render(request, 'home.html', {
         'labels': json.dumps(labels),
         'data': json.dumps(data),
@@ -49,4 +54,5 @@ def home(request):
         'today_revenue': today_revenue,
         'history_labels': json.dumps(history_labels),
         'history_data': json.dumps(history_data),
+        'low_stock_products': low_stock_products,
     })
