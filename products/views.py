@@ -7,6 +7,7 @@ from django.db.models import F, Value
 from django.db.models.functions import Lower, Replace
 from django.urls import reverse
 from accounts.decorators import admin_required
+from django.core.paginator import Paginator
 
 # Forms
 class ProductForm(forms.ModelForm):
@@ -111,4 +112,10 @@ def product_list(request):
             clean_name=Replace(F('clean_name'), Value(' '), Value(''))
         ).filter(clean_name__icontains=normalized_query)
 
-    return render(request, 'products/product_list.html', {'products': products, 'query': query})
+    paginator = Paginator(products, 10)  # Show 10 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    # print(f"Current page: {page_obj.number}, has next: {page_obj.has_next()}, total: {paginator.num_pages}")
+    # print(f"Total pages: {paginator.num_pages}, current page: {page_number}")
+    # print(f"Requested page: {page_number or 1}, Current page: {page_obj.number}, Has next: {page_obj.has_next()}, Total pages: {paginator.num_pages}")
+    return render(request, 'products/product_list.html', {'products': page_obj, 'query': query, 'page_obj': page_obj})
