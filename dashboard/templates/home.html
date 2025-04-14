@@ -178,7 +178,9 @@
         if (viewSelect) {
             viewSelect.addEventListener('change', function () {
                 const viewType = this.value;
-                window.location.href = `/?view=${viewType}`;
+                const url = new URL(window.location.href);
+                url.searchParams.set('view', viewType);  // safely update view param
+                window.location.href = url.toString();  // navigate to updated URL
             });
 
             const currentView = new URLSearchParams(window.location.search).get("view") || "monthly";
