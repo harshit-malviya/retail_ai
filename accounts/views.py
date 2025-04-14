@@ -12,12 +12,21 @@ from .models import CustomUser
 from .forms import CustomUserEditForm  # make sure this is imported
 from django.shortcuts import render, redirect, get_object_or_404
 
+User = get_user_model()
 def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         
+        try:
+            user_obj = User.objects.get(username=username)
+            if not user_obj.is_active:
+                messages.error(request, "⛔ Your account is not yet activated. Please contact the admin.")
+                return redirect('accounts:login')
+        except User.DoesNotExist:
+            pass  # Let it fall through to invalid login
+
         if user is not None:
             login(request, user)
             if user.is_superuser:
@@ -41,11 +50,14 @@ def signup(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            user.is_active = False  # ❌ Inactive by default
             # Optional: Set default role
             user.is_staff_user = True
             user.save()
-            login(request, user)  # auto login after signup
-            return redirect('billing:create_sale')
+            messages.info(request, "✅ Account created. Awaiting admin approval.")
+            return redirect('accounts:login')
+            # login(request, user)  # auto login after signup
+            # return redirect('billing:create_sale')
     else:
         form = CustomUserCreationForm()
     return render(request, 'accounts/signup.html', {'form': form})
@@ -108,3 +120,18 @@ def delete_user(request, user_id):
         return redirect('accounts:manage_accounts')
 
     return render(request, 'accounts/confirm_delete.html', {'user_obj': user})
+
+@admin_required
+def toggle_user_activation(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+
+    if user == request.user:
+        messages.error(request, "❌ You cannot deactivate your own account.")
+        return redirect('accounts:manage_accounts')
+
+    user.is_active = not user.is_active
+    user.save()
+
+    status = "activated" if user.is_active else "deactivated"
+    messages.success(request, f"✅ {user.username}'s account has been {status}.")
+    return redirect('accounts:manage_accounts')

@@ -10,6 +10,7 @@
                 <th>Full Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -29,9 +30,21 @@
                     {% endif %}
                 </td>
                 <td>
+                    {% if not user.is_active %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% else %}
+                        <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </td>
+                <td>
                     <!-- Placeholder: we can implement these next -->
                     <a href="{% url 'accounts:edit_user' user.id %}" class="btn btn-sm btn-warning">Edit</a>
                     <a href="{% url 'accounts:delete_user' user.id %}" class="btn btn-sm btn-danger">Delete</a>
+                    {% if user.is_active %}
+                        <a href="{% url 'accounts:toggle_user_activation' user.id %}" class="btn btn-sm btn-secondary">Deactivate</a>
+                    {% else %}
+                        <a href="{% url 'accounts:toggle_user_activation' user.id %}" class="btn btn-sm btn-success">Activate</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
