@@ -51,6 +51,7 @@
         <div class="card-body">
             <h5 class="card-title {% if low_stock_products %}text-danger{% else %}text-success{% endif %}">⚠️ Low Stock Alerts</h5>
             {% if low_stock_products %}
+            <div style="max-height: 300px; overflow-y: auto;">
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -69,6 +70,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
             {% else %}
                 <p class="text-success">✅ All products are well stocked.</p>
             {% endif %}
@@ -91,6 +93,7 @@
             </form>
 
             {% if slow_moving_products %}
+            <div style="max-height: 300px; overflow-y: auto;">
                 <table class="table table-hover">
                     <thead>
                         <tr>
@@ -109,6 +112,7 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
             {% else %}
                 <p class="text-success">🎉 No slow-moving products in the last {{ days_threshold }} days.</p>
             {% endif %}
