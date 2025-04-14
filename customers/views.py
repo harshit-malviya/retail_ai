@@ -1,7 +1,7 @@
 # Create your views here.
 from django.shortcuts import render
 from .models import Customer
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CustomerForm
 from django.contrib import messages
@@ -9,7 +9,7 @@ from accounts.decorators import admin_required
 
 
 def customer_list(request):
-    query = request.GET.get('q')
+    query = request.GET.get('q','')
     customers = Customer.objects.filter(is_active=True)
 
     if query:
@@ -21,7 +21,10 @@ def customer_list(request):
 
     paginator = Paginator(customers.order_by('-updated_at'), 10)  # 10 per page
     page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    try:
+        page_obj = paginator.get_page(page_number)
+    except (PageNotAnInteger, EmptyPage):
+        page_obj = paginator.get_page(1)
 
     return render(request, 'customers/customer_list.html', {
         'page_obj': page_obj,
