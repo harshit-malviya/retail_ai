@@ -5,6 +5,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import CustomUserCreationForm
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from accounts.decorators import admin_required
+from .models import CustomUser
+from .forms import CustomUserEditForm  # make sure this is imported
+from django.shortcuts import render, redirect, get_object_or_404
 
 def user_login(request):
     if request.method == 'POST':
@@ -39,7 +45,66 @@ def signup(request):
             user.is_staff_user = True
             user.save()
             login(request, user)  # auto login after signup
-            return redirect('home')
+            return redirect('billing:create_sale')
     else:
         form = CustomUserCreationForm()
     return render(request, 'accounts/signup.html', {'form': form})
+
+User = get_user_model()
+@admin_required
+def manage_accounts(request):
+    users = User.objects.exclude(id=request.user.id)  # Exclude the admin himself
+    return render(request, 'accounts/manage_accounts.html', {'users': users})
+
+@admin_required
+def edit_user(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+
+    # Optional: prevent editing other superusers if needed
+    # if user.is_superuser and user != request.user:
+    #     return render(request, 'errors/permission_denied.html')
+
+    if request.method == 'POST':
+        form = CustomUserEditForm(request.POST, instance=user)
+        if form.is_valid():
+            updated_user = form.save(commit=False)
+
+            selected_role = form.cleaned_data['role']
+
+            # Prevent demoting yourself from admin
+            if user.id == request.user.id and selected_role != 'admin':
+                messages.error(request, "❌ You cannot change your own role.")
+                return redirect('accounts:manage_accounts')
+
+            # Apply role change
+            if selected_role == 'admin':
+                updated_user.is_superuser = True
+                updated_user.is_staff = True  # ✅ required for admin access
+                updated_user.is_staff_user = False
+            else:
+                updated_user.is_superuser = False
+                updated_user.is_staff = False  # ✅ remove admin panel access
+                updated_user.is_staff_user = True
+
+            updated_user.save()
+            messages.success(request, "✅ User updated successfully.")
+            return redirect('accounts:manage_accounts')
+    else:
+        form = CustomUserEditForm(instance=user)
+
+    return render(request, 'accounts/edit_user.html', {'form': form, 'user_obj': user})
+
+
+
+@admin_required
+def delete_user(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+
+    if user.is_superuser:
+        return render(request, 'errors/permission_denied.html')
+
+    if request.method == 'POST':
+        user.delete()
+        return redirect('accounts:manage_accounts')
+
+    return render(request, 'accounts/confirm_delete.html', {'user_obj': user})
