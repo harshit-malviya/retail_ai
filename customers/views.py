@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import CustomerForm
 from django.contrib import messages
+from accounts.decorators import admin_required
 
 
 def customer_list(request):
@@ -28,6 +29,7 @@ def customer_list(request):
     })
 
 # Add Customer
+@admin_required
 def customer_create(request):
     if request.method == 'POST':
         form = CustomerForm(request.POST)
@@ -40,6 +42,7 @@ def customer_create(request):
     return render(request, 'customers/customer_form.html', {'form': form, 'title': 'Add Customer'})
 
 # Edit Customer
+@admin_required
 def customer_edit(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
     if request.method == 'POST':
@@ -53,6 +56,7 @@ def customer_edit(request, pk):
     return render(request, 'customers/customer_form.html', {'form': form, 'title': 'Edit Customer'})
 
 # Delete Customer (soft delete)
+@admin_required
 def customer_delete(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
     customer.is_active = False

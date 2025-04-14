@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.shortcuts import render, redirect
 from .forms import SaleForm, SaleItemFormSet
 from django.db import transaction
+from accounts.decorators import admin_required
 
 def create_sale(request):
     if request.method == 'POST':
@@ -86,6 +87,7 @@ from django.http import HttpResponse
 from customers.models import Customer
 from .models import Sale
 
+@admin_required
 def export_customer_sales_excel(request, customer_id):
     customer = Customer.objects.get(id=customer_id)
     sales = Sale.objects.filter(customer=customer).prefetch_related('items__product').order_by('-date')
@@ -214,6 +216,7 @@ from django.http import HttpResponse
 from customers.models import Customer
 from .models import Sale
 
+@admin_required
 def export_customer_sales_pdf(request, customer_id):
     customer = Customer.objects.get(id=customer_id)
     sales = Sale.objects.filter(customer=customer).prefetch_related('items__product').order_by('-date')

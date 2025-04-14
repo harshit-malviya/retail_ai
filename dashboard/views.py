@@ -8,7 +8,9 @@ import json
 from django.db.models import Sum, F
 from django.utils.timezone import now
 from datetime import timedelta
+from accounts.decorators import admin_required
 
+@admin_required
 def home(request):
     view_type = request.GET.get('view', 'monthly')
     today = date.today()

@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import F, Value
 from django.db.models.functions import Lower, Replace
 from django.urls import reverse
+from accounts.decorators import admin_required
 
 # Forms
 class ProductForm(forms.ModelForm):
@@ -24,6 +25,7 @@ def category_list(request):
     # print(categories)
     return render(request, 'products/category_list.html', {'categories': categories})
 
+@admin_required
 def category_create(request):
     form = CategoryForm(request.POST or None)
     if form.is_valid():
@@ -32,6 +34,7 @@ def category_create(request):
     return render(request, 'products/category_form.html', {'form': form})
 
 # CATEGORY: Edit
+@admin_required
 def category_edit(request, pk):
     category = get_object_or_404(ProductCategory, pk=pk)
     form = CategoryForm(request.POST or None, instance=category)
@@ -41,6 +44,7 @@ def category_edit(request, pk):
     return render(request, 'products/category_form.html', {'form': form})
 
 # CATEGORY: Delete
+@admin_required
 def category_delete(request, pk):
     category = get_object_or_404(ProductCategory, pk=pk)
     previous_url = request.META.get('HTTP_REFERER', reverse('products:category_list'))
@@ -59,6 +63,7 @@ def category_list(request):
 
 
 # Product Views
+@admin_required
 def product_create(request):
     form = ProductForm(request.POST or None)
     if form.is_valid():
@@ -72,6 +77,7 @@ def product_list(request):
     return render(request, 'products/product_list.html', {'products': products})
 
 # PRODUCT: Edit
+@admin_required
 def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
     form = ProductForm(request.POST or None, instance=product)
@@ -81,6 +87,7 @@ def product_edit(request, pk):
     return render(request, 'products/product_form.html', {'form': form, 'title': 'Edit Product'})
 
 # PRODUCT: Delete
+@admin_required
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk)
     previous_url = request.META.get('HTTP_REFERER', reverse('products:product_list'))
