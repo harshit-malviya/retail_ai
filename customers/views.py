@@ -29,7 +29,6 @@ def customer_list(request):
     })
 
 # Add Customer
-@admin_required
 def customer_create(request):
     if request.method == 'POST':
         form = CustomerForm(request.POST)
