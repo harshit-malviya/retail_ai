@@ -5,11 +5,19 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<div class="container my-4">
-    <h2 class="mt-5 text-center">Create Sale</h2>
-
+<div class="container mt-3">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+        <h2 class="mb-0 text-center">Create Sale</h2></div>
     <form method="post" id="sale-form" class="bg-light p-4 rounded shadow">
         {% csrf_token %}
+        <div class="mb-3">
+            <label for="phone-search" class="form-label">Search Customer by Phone</label>
+            <div class="input-group">
+            <input type="text" id="phone-search" class="form-control" placeholder="Enter phone number">
+            <button type="button" id="reset-btn" class="btn btn-outline-danger">Reset</button></div>
+            <div id="customer-results" class="list-group mt-1" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
         <div class="mb-3 text-center">
             {{ form.as_p }}
         </div>
@@ -17,7 +25,7 @@
         {{ formset.management_form }}
 
         <table class="table table-bordered table-striped" id="items-table">
-            <thead class="table-dark">
+            <thead class="table-secondary">
                 <tr>
                     <th>Product</th>
                     <th>Quantity</th>
@@ -50,9 +58,10 @@
         </div>
 
         <div class="text-end mt-3">
-            <button type="submit" class="btn btn-primary">Complete Sale</button>
+            <button type="submit" class="btn btn-success">Complete Sale</button>
         </div>
     </form>
+</div>
 </div>
 
 <script>
@@ -70,6 +79,36 @@
             });
             $('#total-amount').text(total.toFixed(2));
         }
+        $('#phone-search').on('input', function () {
+    const query = $(this).val();
+    if (query.length >= 3) {
+        $.get('/billing/api/search-customer/', { phone: query }, function (data) {
+            let html = '';
+            if (data.length > 0) {
+                data.forEach(cust => {
+                    html += `<button type="button" class="list-group-item list-group-item-action" data-id="${cust.id}" data-name="${cust.name} (${cust.phone})">${cust.name} (${cust.phone})</button>`;
+                });
+            } else {
+                html = '<div class="list-group-item text-muted">No customer found</div>';
+            }
+            $('#customer-results').html(html);
+        });
+    } else {
+        $('#customer-results').empty();
+    }
+});
+
+$('#customer-results').on('click', '.list-group-item', function () {
+    const customerId = $(this).data('id');
+    const customerName = $(this).data('name');
+    
+    $('#id_customer').val(customerId); // Assumes the customer field is a select input
+    $('#customer-results').empty();
+    $('#phone-search').val(customerName);
+});
+$('#reset-btn').on('click', function () {
+    location.reload(); // This reloads the page
+});
     
         function validateQuantity($row) {
             const qty = parseInt($row.find('input[name$="-quantity"]').val()) || 0;

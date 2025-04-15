@@ -5,6 +5,9 @@ from django.shortcuts import render, redirect
 from .forms import SaleForm, SaleItemFormSet
 from django.db import transaction
 from accounts.decorators import admin_required
+from customers.models import Customer
+from django.http import JsonResponse
+from django.db.models import Q
 
 def create_sale(request):
     if request.method == 'POST':
@@ -297,3 +300,14 @@ def export_customer_sales_pdf(request, customer_id):
     filename = f"{customer.name.replace(' ', '_')}_Purchase_History.pdf"
     response['Content-Disposition'] = f'attachment; filename={filename}'
     return response
+
+def search_customer_by_phone(request):
+    query = request.GET.get('phone', '')
+    if query:
+        customers = Customer.objects.filter(phone__icontains=query)[:10]
+        data = [
+            {'id': c.id, 'name': c.name, 'phone': c.phone}
+            for c in customers
+        ]
+        return JsonResponse(data, safe=False)
+    return JsonResponse([], safe=False)
