@@ -72,9 +72,12 @@ def manage_accounts(request):
 def edit_user(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
 
-    # Optional: prevent editing other superusers if needed
-    # if user.is_superuser and user != request.user:
-    #     return render(request, 'errors/permission_denied.html')
+    # 🔄 Update: Check if the user is a "standard admin"
+    is_standard_admin = user.is_superuser and user.is_staff and not user.is_staff_user
+
+    # 🔄 Update: Only allow editing another admin if they're standard
+    if user.is_superuser and user != request.user and is_standard_admin:
+        return render(request, 'errors/permission_denied.html')
 
     if request.method == 'POST':
         form = CustomUserEditForm(request.POST, instance=user)
@@ -91,7 +94,7 @@ def edit_user(request, user_id):
             # Apply role change
             if selected_role == 'admin':
                 updated_user.is_superuser = True
-                updated_user.is_staff = True  # ✅ required for admin access
+                updated_user.is_staff = False      # ✅ required for admin access
                 updated_user.is_staff_user = False
             else:
                 updated_user.is_superuser = False
@@ -129,6 +132,10 @@ def toggle_user_activation(request, user_id):
         messages.error(request, "❌ You cannot deactivate your own account.")
         return redirect('accounts:manage_accounts')
 
+    is_standard_admin = user.is_superuser and user.is_staff and not user.is_staff_user
+    if user.is_superuser and user != request.user and is_standard_admin:
+        return render(request, 'errors/permission_denied.html')
+    
     user.is_active = not user.is_active
     user.save()
 
