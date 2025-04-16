@@ -2,39 +2,123 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Retail AI{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar-nav .nav-link{
+            color: rgb(255, 255, 255) !important;
+        }
+        @media (max-width: 992px) {
+            .navbar-nav {
+                text-align: center;
+                width: 100%;
+            }
+            .navbar-nav .nav-item {
+                margin: 0.25rem 0;
+                width: 100%;
+            }
+            .navbar-nav .nav-link {
+                text-align: center;
+                padding: 0.5rem 1rem;
+            }
+            .navbar-text {
+                display: block;
+                margin: 0.5rem 0;
+                text-align: center;
+                width: 100%;
+            }
+            .navbar-nav.ms-auto {
+                margin-top: 0.5rem;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                padding-top: 0.5rem;
+                width: 100%;
+            }
+            .navbar-nav.ms-auto .nav-item {
+                text-align: center;
+            }
+        }
+
+                /*logout bada ho gaya*/
+        /*    .navbar-nav.ms-auto .btn {*/
+        /*        width: 100%;*/
+        /*        margin: 0.25rem 0;*/
+        /*    }*/
+        /*.navbar-text {*/
+        /*    display: flex;*/
+        /*    align-items: center;*/
+        /*    margin-right: 1rem;*/
+        /*}*/
+        @media (max-width: 991.98px) {
+            .navbar-collapse {
+                text-align: center;
+            }
+
+            .navbar-nav {
+                flex-direction: column !important;
+                align-items: center;
+            }
+
+            .navbar-nav .nav-link {
+                padding: 0.5rem 1rem;
+                width: 100%;
+                color: rgb(255, 255, 255) !important;
+            }
+
+            .navbar-nav .nav-item {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     <!-- 🌐 Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid px-2 px-md-3">
             <a class="navbar-brand" href="{% url 'home' %}">Retail AI</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <!-- Left Navigation Links -->
                 <ul class="navbar-nav nav-pills me-auto">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/customers/' %}active{% endif %}" href="{% url 'customers:customer_list' %}">Customers</a>
+                        <a class="nav-link {% if request.path == '/customers/' %}active{% endif %}" href="{% url 'customers:customer_list' %}">
+                            <span class="d-none d-md-inline">Customers</span>
+                            <span class="d-md-none"> 🙋‍♂️ Customers</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/products/' %}active{% endif %}" href="{% url 'products:product_list' %}">Products</a>
+                        <a class="nav-link {% if request.path == '/products/' %}active{% endif %}" href="{% url 'products:product_list' %}">
+                            <span class="d-none d-md-inline">Products</span>
+                            <span class="d-md-none">📦 Products</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/categories/' %}active{% endif %}" href="{% url 'products:category_list' %}">Category</a>
+                        <a class="nav-link {% if request.path == '/categories/' %}active{% endif %}" href="{% url 'products:category_list' %}">
+                            <span class="d-none d-md-inline">Category</span>
+                            <span class="d-md-none">🏷️ Category</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/billing/create/' %}active{% endif %}" href="{% url 'billing:create_sale' %}">Sale</a>
+                        <a class="nav-link {% if request.path == '/billing/create/' %}active{% endif %}" href="{% url 'billing:create_sale' %}">
+                            <span class="d-none d-md-inline">Sale</span>
+                            <span class="d-md-none">💰 Sale</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/returns/return/' %}active{% endif %}" href="{% url 'returns:return_product' %}">Return</a>
+                        <a class="nav-link {% if request.path == '/returns/return/' %}active{% endif %}" href="{% url 'returns:return_product' %}">
+                            <span class="d-none d-md-inline">Return</span>
+                            <span class="d-md-none">↩️ Return</span>
+                        </a>
                     </li>
                     {% if request.user.is_superuser %}
                         <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/manage/' %}active{% endif %}" href="{% url 'accounts:manage_accounts' %}">Manage Accounts</a>
+                            <a class="nav-link {% if request.path == '/manage/' %}active{% endif %}" href="{% url 'accounts:manage_accounts' %}">
+                                <span class="d-none d-md-inline">Manage Accounts</span>
+                                <span class="d-md-none">⚙️ Manage</span>
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
@@ -43,16 +127,16 @@
                 <ul class="navbar-nav ms-auto">
                     {% if request.user.is_authenticated %}
                         <li class="nav-item">
-                            <span class="navbar-text text-white me-3">
+                            <span class="nav-link navbar-text text-white me-3">
                                 👋 {{ request.user.first_name }} {{ request.user.last_name }}
                             </span>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-sm btn-outline-light" href="{% url 'accounts:logout' %}">Logout</a>
+                            <a class="btn btn-outline-light" href="{% url 'accounts:logout' %}">Logout</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="btn btn-sm btn-outline-light" href="{% url 'accounts:login' %}">Login</a>
+                            <a class="btn btn-outline-light" href="{% url 'accounts:login' %}">Login</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -61,7 +145,7 @@
     </nav>
 
     <!-- 📦 Content Section -->
-    <div class="container mt-4">
+    <div class="container-fluid flex-grow-1 px-2 px-md-4 py-3">
         {% block content %}
         {% endblock %}
     </div>
