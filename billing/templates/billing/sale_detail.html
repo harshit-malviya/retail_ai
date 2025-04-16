@@ -4,47 +4,57 @@
 <div class="container my-4" id="invoice-content">
     <h2>Invoice #{{ sale.id }}</h2>
 
-    <p><strong>Date:</strong> {{ sale.date }}</p>
-    <p><strong>Customer:</strong> {{ sale.customer.name }}</p>
-    <p><strong>Phone:</strong> {{ sale.customer.phone }}</p>
-    <p><strong>Last Purchase:</strong> {{ sale.customer.last_purchase_date|date:"Y-m-d H:i" }}</p>
-    <p><strong>Visits:</strong> {{ sale.customer.visit_count }}</p>
-    <p><strong>Total Spent:</strong> ₹{{ sale.customer.total_spent }}</p>
+    <div class="row row-cols-1 row-cols-md-2">
+        <div class="col">
+            <p><strong>Date:</strong> {{ sale.date }}</p>
+            <p><strong>Customer:</strong> {{ sale.customer.name }}</p>
+            <p><strong>Phone:</strong> {{ sale.customer.phone }}</p>
+        </div>
+        <div class="col">
+            <p><strong>Last Purchase:</strong> {{ sale.customer.last_purchase_date|date:"Y-m-d H:i" }}</p>
+            <p><strong>Visits:</strong> {{ sale.customer.visit_count }}</p>
+            <p><strong>Total Spent:</strong> ₹{{ sale.customer.total_spent }}</p>
+        </div>
+    </div>
 
     <hr>
 
-    <table class="table table-bordered">
-        <thead class="table-light">
-            <tr>
-                <th>Product</th>
-                <th>Size</th>
-                <th>Color</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in sale.items.all %}
-            <tr>
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.product.size }}</td>
-                <td>{{ item.product.color }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>₹{{ item.price }}</td>
-                <td>₹{{ item.get_total_price }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Product</th>
+                    <th>Size</th>
+                    <th>Color</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sale.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.size }}</td>
+                    <td>{{ item.product.color }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.price }}</td>
+                    <td>₹{{ item.get_total_price }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <hr>
-    <p><strong>Total Amount:</strong> ₹{{ sale.total_amount }}</p>
+    <p class="fs-5"><strong>Total Amount:</strong> ₹{{ sale.total_amount }}</p>
 </div>
 
-<div class="text-end my-3">
-    <button onclick="window.print()" class="btn btn-primary">
-        🖨️ Print Invoice
-    </button>
+<div class="container">
+    <div class="d-grid d-md-flex justify-content-md-end my-3">
+        <button onclick="window.print()" class="btn btn-primary w-md-auto">
+            🖨️ Print Invoice
+        </button>
+    </div>
 </div>
 {% endblock %}
