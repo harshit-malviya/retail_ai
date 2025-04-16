@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-5 text-center">
-    <h4>Are you sure you want to delete <strong>{{ user_obj.username }}</strong>?</h4>
+    <h4>Are you sure you want to delete</h4> 
+    <h2><strong>{{ user_obj.username }} ?</strong></h2>
     <form method="post">
         {% csrf_token %}
+        <div class="d-flex justify-content-center gap-2 mt-3">
         <button type="submit" class="btn btn-danger">Yes, delete</button>
         <a href="{% url 'accounts:manage_accounts' %}" class="btn btn-secondary">Cancel</a>
+    </div>
     </form>
 </div>
 {% endblock %}
