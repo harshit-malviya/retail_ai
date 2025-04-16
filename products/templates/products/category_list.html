@@ -4,7 +4,7 @@
     <h2>Category List</h2>
     <form method="get" class="mb-3" role="search">
         <div class="input-group">
-            <input type="text" name="q" value="{{ query|default:'' }}" class="form-control" placeholder="Search products...">
+            <input type="text" name="q" value="{{ query|default:'' }}" class="form-control" placeholder="Search category...">
             {% if query %}
                 <a href="{% url 'products:category_list' %}" class="btn btn-warning">Clear</a>
             {% else %}
