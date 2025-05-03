@@ -8,6 +8,7 @@ from django.db.models.functions import Lower, Replace
 from django.urls import reverse
 from accounts.decorators import admin_required
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 
 # Forms
 class ProductForm(forms.ModelForm):
@@ -119,3 +120,30 @@ def product_list(request):
     # print(f"Total pages: {paginator.num_pages}, current page: {page_number}")
     # print(f"Requested page: {page_number or 1}, Current page: {page_obj.number}, Has next: {page_obj.has_next()}, Total pages: {paginator.num_pages}")
     return render(request, 'products/product_list.html', {'products': page_obj, 'query': query, 'page_obj': page_obj})
+
+def get_product_by_barcode(request):
+    barcode = request.GET.get('barcode', '').strip()
+    try:
+        product = Product.objects.get(barcode__iexact=barcode)
+        product.stock_quantity += 1
+        product.save()
+
+        return JsonResponse({
+            'found': True,
+            'id': product.id,
+        })
+    except Product.DoesNotExist:
+        return JsonResponse({'found': False})
+
+
+def edit_product(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('products:product_list')
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, 'products/product_form.html', {'form': form, 'title': 'Edit Product'})

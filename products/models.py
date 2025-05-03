@@ -15,6 +15,7 @@ class Product(models.Model):
     size = models.CharField(max_length=10)
     color = models.CharField(max_length=50)
     
+    barcode = models.CharField(max_length=100, unique=True, null=True, blank=True)
     cost_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     selling_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     low_stock_threshold = models.PositiveIntegerField(default=10)
