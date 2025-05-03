@@ -1,54 +1,64 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Manage Accounts</h2>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>Username</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ user.first_name }} {{ user.last_name }}</td>
-                <td>{{ user.email }}</td>
-                <td>
-                    {% if user.is_superuser %}
-                        Admin
-                    {% elif user.is_staff_user %}
-                        Staff
-                    {% else %}
-                        Unknown
-                    {% endif %}
-                </td>
-                <td>
-                    {% if not user.is_active %}
-                        <span class="badge bg-warning text-dark">Pending</span>
-                    {% else %}
-                        <span class="badge bg-success">Active</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <!-- Placeholder: we can implement these next -->
-                    <a href="{% url 'accounts:edit_user' user.id %}" class="btn btn-sm btn-warning">Edit</a>
-                    <a href="{% url 'accounts:delete_user' user.id %}" class="btn btn-sm btn-danger">Delete</a>
-                    {% if user.is_active %}
-                        <a href="{% url 'accounts:toggle_user_activation' user.id %}" class="btn btn-sm btn-secondary">Deactivate</a>
-                    {% else %}
-                        <a href="{% url 'accounts:toggle_user_activation' user.id %}" class="btn btn-sm btn-success">Activate</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container mt-3">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0 text-center">Manage Accounts</h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-nowrap">Username</th>
+                            <th class="text-nowrap">Full Name</th>
+                            <th class="text-nowrap">Email</th>
+                            <th class="text-nowrap">Role</th>
+                            <th class="text-nowrap">Status</th>
+                            <th class="text-nowrap">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.first_name }} {{ user.last_name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.is_superuser %}
+                                    <span class="badge bg-primary">Admin</span>
+                                {% elif user.is_staff_user %}
+                                    <span class="badge bg-secondary">Staff</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Unknown</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not user.is_active %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% else %}
+                                    <span class="badge bg-success">Active</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column flex-md-row gap-2">
+                                    <a href="{% url 'accounts:edit_user' user.id %}" class="btn btn-warning">Edit</a>
+                                    <a href="{% url 'accounts:delete_user' user.id %}" class="btn btn-danger">Delete</a>
+                                    {% if user.is_active %}
+                                        <a href="{% url 'accounts:toggle_user_activation' user.id %}" class="btn btn-secondary">Deactivate</a>
+                                    {% else %}
+                                        <a href="{% url 'accounts:toggle_user_activation' user.id %}" class="btn btn-success">Activate</a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

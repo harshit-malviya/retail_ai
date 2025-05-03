@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 {% block content %}
-<div class="container mt-4" style="max-width: 500px;">
-    <h3>Edit User: {{ user_obj.username }}</h3>
-    <form method="post">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <button type="submit" class="btn btn-success mt-2">Save Changes</button>
-        <a href="{% url 'accounts:manage_accounts' %}" class="btn btn-secondary mt-2">Cancel</a>
-    </form>
+<div class="container mt-2">
+    <div class="card shadow mx-auto" style="max-width: 500px;">
+        <div class="card-header bg-primary text-white">
+            <h3>Edit User: {{ user_obj.username }}</h3>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+            <button type="submit" class="btn btn-success mt-2">Save Changes</button>
+            <a href="{% url 'accounts:manage_accounts' %}" class="btn btn-secondary mt-2">Cancel</a>
+        </form>
+    </div>
 </div>
 {% endblock %}
